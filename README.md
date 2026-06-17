@@ -272,7 +272,7 @@ ISC
 
 ## Author
 
-Your Name
+Muhammad Abuzer
 
 ---
 

@@ -1,0 +1,338 @@
+{
+    "info": {
+        "name": "Flash Sale Inventory API",
+        "description": "Production-quality Node.js backend for flash sale inventory reservation system",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Products",
+            "item": [
+                {
+                    "name": "Create Product",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.globals.set('productId', jsonData.data._id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\\n    \\\"name\\\": \\\"iPhone 15 Pro\\\",\\n    \\\"stock\\\": 100,\\n    \\\"price\\\": 999.99,\\n    \\\"description\\\": \\\"Latest iPhone with advanced features\\\"\\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ]
+                        },
+                        "description": "Create a new product with name, stock, price, and optional description"
+                    }
+                },
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ]
+                        },
+                        "description": "Retrieve all products"
+                    }
+                },
+                {
+                    "name": "Get Product by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products/{{productId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "{{productId}}"
+                            ]
+                        },
+                        "description": "Get a specific product by its ID"
+                    }
+                },
+                {
+                    "name": "Get Product Status",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products/{{productId}}/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "{{productId}}",
+                                "status"
+                            ]
+                        },
+                        "description": "Get product stock status including total, reserved, and available stock"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reservations",
+            "item": [
+                {
+                    "name": "Create Reservation",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    pm.globals.set('userId', pm.request.body.raw.match(/\\\"userId\\\":\\s*\\\"([^\\\"]+)\\\"/)[1]);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\\n    \\\"userId\\\": \\\"user123\\\",\\n    \\\"productId\\\": \\\"{{productId}}\\\",\\n    \\\"quantity\\\": 2\\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "reservations"
+                            ]
+                        },
+                        "description": "Create a new reservation for a product. Locks stock for 10 minutes (600 seconds)"
+                    }
+                },
+                {
+                    "name": "Get Reservation",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/{{userId}}/{{productId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "reservations",
+                                "{{userId}}",
+                                "{{productId}}"
+                            ]
+                        },
+                        "description": "Get active reservation for a user-product combination"
+                    }
+                },
+                {
+                    "name": "Cancel Reservation",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/{{userId}}/{{productId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "reservations",
+                                "{{userId}}",
+                                "{{productId}}"
+                            ]
+                        },
+                        "description": "Cancel an active reservation. Reserved stock becomes available immediately"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Orders",
+            "item": [
+                {
+                    "name": "Checkout (Create Order)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.globals.set('orderId', jsonData.data._id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\\n    \\\"userId\\\": \\\"user123\\\",\\n    \\\"productId\\\": \\\"{{productId}}\\\",\\n    \\\"quantity\\\": 2\\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/orders/checkout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "orders",
+                                "checkout"
+                            ]
+                        },
+                        "description": "Checkout a reservation and create an order. Verifies reservation exists, deducts stock from MongoDB, creates order record, and removes reservation from Redis"
+                    }
+                },
+                {
+                    "name": "Get Order by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/orders/{{orderId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "orders",
+                                "{{orderId}}"
+                            ]
+                        },
+                        "description": "Get details of a specific order"
+                    }
+                },
+                {
+                    "name": "Get User Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/orders/user/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "orders",
+                                "user",
+                                "{{userId}}"
+                            ]
+                        },
+                        "description": "Get all orders for a specific user"
+                    }
+                },
+                {
+                    "name": "Get Order Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/orders/stats",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "orders",
+                                "stats"
+                            ]
+                        },
+                        "description": "Get overall order statistics including total orders, revenue, and average order value"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/health",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "health"
+                    ]
+                },
+                "description": "Check if the server is running and healthy"
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:5000",
+            "type": "string"
+        },
+        {
+            "key": "productId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "userId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "orderId",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}
